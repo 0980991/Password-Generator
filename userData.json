@@ -3,9 +3,9 @@
         "username" : "user1",
         "password" : "12345678"
     },
-    
+
     {
         "username" : "user2",
-        "password" : "123456"
+        "password" : "2345678"
     }
 ]
