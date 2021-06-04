@@ -19,14 +19,13 @@ class GUI:
 
 
 class PasswordManager:
-    
-    def __init__(self): 
+    def __init__(self):
         self.userData = json.load(open("userData.json"))
         for username in self.userData:
             print(type(self.username))
             print(type(self.userData))
 
-                                 
+                                
 class PasswordGenerator:
     
     def Generate(self):
