@@ -1,3 +1,3 @@
 import Classes
 
-generator = Classes.GUI()
+self.generator = Classes.PasswordGenerator.Generate()
