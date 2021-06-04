@@ -2,7 +2,7 @@ import json
 import random
 import os
 import time
-
+import functools as ft
 
 class GUI:
      def __init__(self):
@@ -56,13 +56,13 @@ class PasswordGenerator:
         self.length = length
         self.charType = charType
         self.minMax = []
-        self.MinMax2 = []
-        self.MinMax3 = []
+        self.minMax2 = []
+        self.minMax3 = []
         self.SelectRange()
 
     def SelectRange(self):
         if self.charType == 1:
-            self.minMax.extend([97, 122])
+            self.minMax.extend([97, 122]) # these parameters represent the decimal range from a - z lowercase letters
             self.Generate()
             print(self.password)
 
@@ -71,34 +71,41 @@ class PasswordGenerator:
             self.Generate()
 
         elif self.charType == 3:
-            self.MinMax2.extend([65, 90], [97, 122])
+            self.minMax2.extend([(65, 90), (97, 122)])
             self.Generate2()
 
         elif self.charType == 4:
-            self.MinMax3.extend([(48, 57), (65, 90), (97, 122)])
+            self.minMax3.extend([(48, 57), (65, 90), (97, 122)])
             self.Generate3()
 
         elif self.charType == 5:
-            self.MinMax2.extend([33, 47], [58, 176])
+            self.minMax2.extend([33, 47], [58, 176])
             self.Generate2()
 
         elif self.charType == 6:
             self.minMax.extend([33, 176])
             self.Generate()
 
+        input(f"Your password is {self.password}")
+
     def Generate(self): # Generates pw based on 1 range of ascii values
         for i in range(self.length):
             self.password += chr(random.randint(self.minMax[0], self.minMax[1]))
-        input(f"Your password is {self.password}")
 
     def Generate2(self): # Generates pw based on 2 ranges of ascii values
-        for i in range(self.length):
-            self.password += chr(random.randint(*random.choice(self.MinMax2)))
-        input(f"Your password is {self.password}")
+        for _ in range(self.length):
+            r = random.choice([(self.minMax2[0][0],self.minMax2[0][1]),
+                               (self.minMax2[1][0],self.minMax2[1][1])])
+
+            self.password += chr(random.randint(r[0], r[1]))
 
     def Generate3(self): # Generates pw based on 3 ranges of ascii values
         for i in range(self.length):
-            self.password += chr(random.randint(*random.choice(self.MinMax2)))
-        input(f"Your password is {self.password}")
+            r = random.choice([(self.minMax3[0][0], self.minMax3[0][1]),
+                               (self.minMax3[1][0], self.minMax3[1][1]),
+                               (self.minMax3[2][0], self.minMax3[2][1])])
+
+            self.password += chr(random.randint(r[0], r[1]))
+
 
 gui = GUI()
