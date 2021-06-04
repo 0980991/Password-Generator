@@ -1,3 +1,6 @@
 import Classes
-
-self.generator = Classes.PasswordGenerator.Generate()
+class Main:
+    def __init__(self):
+    
+        self.generator = Classes.GUI()
+        
