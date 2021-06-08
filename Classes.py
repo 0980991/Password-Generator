@@ -15,6 +15,12 @@ class GUI:
         while choice not in range(1-4):
             ClearTerminal()
             if choice == "1":
+                pW = ""
+                while pW != "password":
+                    pW = input("Please enter the correct password:\n")
+
+                choice = input("What would you like to do?\n" + (15 * "_") +
+                               "")
                 PasswordManager()
                 break
 
@@ -31,6 +37,7 @@ class GUI:
                             "5. UPPER, lower and $pec!al characters\n"
                             "6. UPPER, lower, $pec!al and numb3rs\n"))
                 PasswordGenerator(length, charTypes)
+                break
 
             else:
                 input("Please try something else...")
@@ -43,11 +50,21 @@ def ClearTerminal():
 
 
 class PasswordManager:
-    def __init__(self):
+    def __init__(self, choice):
         self.userData = json.load(open("userData.json"))
-        for username in self.userData:
-            print(type(self.username))
+        for site in self.userData:
+            print(type(site))
             print(type(self.userData))
+        if choice == 1:
+            self.GetInfo()
+
+        elif choice == 2:
+            self.Search()
+
+        elif choice == 3:
+            self.Logout()
+    def GetInfo(self):
+        pass
 
 
 class PasswordGenerator:
@@ -67,19 +84,23 @@ class PasswordGenerator:
             print(self.password)
 
         elif self.charType == 2:
-            self.minMax.extend([65, 90])
+            self.minMax.extend((65, 90))
             self.Generate()
 
         elif self.charType == 3:
-            self.minMax2.extend([(65, 90), (97, 122)])
+            self.minMax2.extend([(65, 90),
+                                 (97, 122)])
             self.Generate2()
 
         elif self.charType == 4:
-            self.minMax3.extend([(48, 57), (65, 90), (97, 122)])
+            self.minMax3.extend([(48, 57),
+                                 (65, 90),
+                                 (97, 122)])
             self.Generate3()
 
         elif self.charType == 5:
-            self.minMax2.extend([33, 47], [58, 176])
+            self.minMax2.extend((33, 47),
+                                (58, 176))
             self.Generate2()
 
         elif self.charType == 6:
@@ -108,4 +129,5 @@ class PasswordGenerator:
             self.password += chr(random.randint(r[0], r[1]))
 
 
-gui = GUI()
+#gui = GUI()
+pwManager = PasswordManager()

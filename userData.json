@@ -1,11 +1,11 @@
 [
     {
-        "username" : "user1",
+        "site" : "Amazon",
         "password" : "12345678"
     },
 
     {
-        "username" : "user2",
+        "site" : "Bol",
         "password" : "2345678"
     }
 ]
