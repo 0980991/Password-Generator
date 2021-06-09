@@ -11,41 +11,41 @@ class GUI:
         print("Password Generator 6900\n" + (15 * "_"))
         print("What would you like to do today?\n" + (15 * "_") +
               "\n1. Open password manager\n2. Generate new password\n3. Quit")
-        choice = input()
+        self.choice = input()
         self.ClearTerminal()
 
-        while choice not in range(1-4):
+        while self.choice not in range(1-4):
             self.ClearTerminal()
-            if choice == "1":
+            if self.choice == "1":
                 pW = ""
                 while pW != "password":
                     pW = input("Please enter the correct password:\n")
 
-                choice = input("What would you like to do?\n" + (15 * "_") +
-                               "")
-                PasswordManager()
-                break
+                self.choice = input("What would you like to do?\n" + (15 * "_") +
+                                    "\n1. Show all passwords"
+                                    "\n2. Search for a password\n")
+                PasswordManager(self.choice)
 
-            if choice == "2":
-                length = int(input("How many characters would you like your password to be?\n"))
-                charTypes = 0
-                while charTypes not in range(1, 7):
-                    # ClearTerminal()
-                    charTypes = int(input("Which characters would you like to have in your password?\n" + (15 * "_") +
-                                          "\n1. lowercase only\n"
-                                          "2. UPPERCASE ONLY\n"
-                                          "3. UPPERCASE And lowercase\n"
-                                          "4. UPPER, lower and numb3rs\n"
-                                          "5. UPPER, lower and $pec!al characters\n"
-                                          "6. UPPER, lower, $pec!al and numb3rs\n"))
-
-                PasswordGenerator(length, charTypes)
+            if self.choice == "2":
+                self.SetPwParameters()
                 GUI()
 
-            else:
-                input("Please try something else...")
-                time.sleep(2)
-                GUI()
+    def SetPwParameters(self):
+        length = int(input("How many characters would you like your password to be?\n"))
+        charTypes = 0
+        while charTypes not in range(1, 7):
+            # ClearTerminal()
+            charTypes = int(input("Which characters would you like to have in your password?\n" + (15 * "_") +
+                                    "\n1. lowercase only\n"
+                                    "2. UPPERCASE ONLY\n"
+                                    "3. UPPERCASE And lowercase\n"
+                                    "4. UPPER, lower and numb3rs\n"
+                                    "5. UPPER, lower and $pec!al characters\n"
+                                    "6. UPPER, lower, $pec!al and numb3rs\n"))
+
+            PasswordGenerator(length, charTypes)
+
+        GUI()
 
     def ClearTerminal(self):
         os.system("cls")
@@ -54,9 +54,7 @@ class GUI:
 class PasswordManager:
     def __init__(self, choice):
         self.userData = json.load(open("userData.json"))
-        for site in self.userData:
-            print(type(site))
-            print(type(self.userData))
+
         if choice == 1:
             self.GetInfo()
 
@@ -64,9 +62,43 @@ class PasswordManager:
             self.Search()
 
         elif choice == 3:
+            GUI.SetPwParameters()
+
+        elif choice == 4:
             self.Logout()
+
     def GetInfo(self):
-        pass
+        for site in self.userData:
+            print(15 * "-" + "\n"
+                  f'Site: {site["site"]}\n'
+                  f'Password: {site["password"]} ')
+
+    def Search(self):
+        while True:
+            os.system("cls")
+            searchChoice = input("===============================\n"
+                                 "Please enter your search query?\n"
+                                 "-------------------------------\n")
+
+            flag = True
+            while flag:
+                output = ""
+                i = 0
+                while i < len(self.userData):
+                    if searchChoice == self.userData[i]["site"]:
+                        output += "\n" + str(self.userData[i])
+                    i += 1
+                if output != "":
+                    print(f"{output}")
+                    input()
+                    flag = False
+                else:
+                    print("No items found matching your query. Check for spelling errors or adjust your query type.")
+                    time.sleep(5)
+                input("Press enter to continue...........")
+
+    def Logout():
+        GUI()
 
 
 class PasswordGenerator:
@@ -86,7 +118,7 @@ class PasswordGenerator:
             print(self.password)
 
         elif self.charType == 2:
-            self.minMax.extend((65, 90))
+            self.minMax.extend([65, 90])
             self.Generate()
 
         elif self.charType == 3:
@@ -101,15 +133,15 @@ class PasswordGenerator:
             self.Generate3()
 
         elif self.charType == 5:
-            self.minMax2.extend((33, 47),
-                                (58, 176))
+            self.minMax2.extend([(33, 47),
+                                (58, 176)])
             self.Generate2()
 
         elif self.charType == 6:
             self.minMax.extend([33, 176])  # these parameters represent the decimal range of (essentially) all ascii characters
             self.Generate()
 
-        self.ClearTerminal()
+        os.system("cls")
         input(f"Your password is {self.password}")
 
     def Generate(self):  # Generates pw based on 1 range of ascii values
@@ -132,5 +164,5 @@ class PasswordGenerator:
             self.password += chr(random.randint(r[0], r[1]))
 
 
-#gui = GUI()
-pwManager = PasswordManager()
+gui = GUI()
+# pwManager = PasswordManager(1)
