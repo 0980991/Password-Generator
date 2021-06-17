@@ -13,14 +13,15 @@ class GUI:
               "\n1. Open password manager\n2. Generate new password\n3. Quit")
         self.choice = input()
         self.ClearTerminal()
+        self.isLoggedIn = False
 
         while self.choice not in range(1-4):
             self.ClearTerminal()
             if self.choice == "1":
                 pW = ""
-                while pW != "password":
+                while pW != "password" and self.isLoggedIn:
                     pW = input("Please enter the correct password:\n")
-
+                isLoggedIn = True
                 self.choice = input("What would you like to do?\n" + (15 * "_") +
                                     "\n1. Show all passwords"
                                     "\n2. Search for a password\n")
