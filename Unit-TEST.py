@@ -1,2 +1,2 @@
 from Classes import PasswordGenerator as Gen
-Gen(20, 6)y
+Gen(20, 6)
