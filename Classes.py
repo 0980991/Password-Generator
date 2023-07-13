@@ -104,6 +104,14 @@ class PasswordManager:
 
 class PasswordGenerator:
     def __init__(self, length, charType):
+        # Ascii values of text/symbols
+        self.a_lowercase_range    = [97, 122]
+        self.a_uppercase_range    = [65, 90]
+        self.a_numbers_range      = [48, 57]
+        self.a_special_chars      = ["!", "@","#", "$", "%", "^", "&", "*",
+                                     "(", ")" , "_", "-", "\"", "\'", "\\"]
+
+
         self.password = ""
         self.length = length
         self.charType = charType
@@ -113,37 +121,53 @@ class PasswordGenerator:
         self.SelectRange()
 
     def SelectRange(self):
-        if self.charType == 1:
-            self.minMax.extend([97, 122])  # these parameters represent the decimal range from a - z lowercase letters
-            self.Generate()
-            print(self.password)
+        # TODO This spaghetti logic needs an overhaul!
+        isGenerating = True
+        while isGenerating:
+            self.password = ''
+            if self.charType == 1:
+                self.minMax.extend(self.a_lowercase_range)  # these parameters represent the decimal range from a - z lowercase letters
+                self.Generate()
+                print(self.password)
 
-        elif self.charType == 2:
-            self.minMax.extend([65, 90])
-            self.Generate()
+            elif self.charType == 2:
+                self.minMax.extend(self.a_uppercase_range)
+                self.Generate()
+                #self.verifyPassword()
 
-        elif self.charType == 3:
-            self.minMax2.extend([(65, 90),
-                                 (97, 122)])
-            self.Generate2()
+            elif self.charType == 3:
+                self.minMax2.extend([self.a_lowercase_range,
+                                     self.a_uppercase_range])
+                self.Generate2()
 
-        elif self.charType == 4:
-            self.minMax3.extend([(48, 57),
-                                 (65, 90),
-                                 (97, 122)])
-            self.Generate3()
+            elif self.charType == 4:
+                self.minMax.extend(self.a_numbers_range)
+                self.Generate()
 
-        elif self.charType == 5:
-            self.minMax2.extend([(33, 47),
-                                (58, 176)])
-            self.Generate2()
+            elif self.charType == 5:
+                self.minMax3.extend([self.a_lowercase_range,
+                                     self.a_uppercase_range,
+                                     self.a_numbers_range])
+                self.Generate3()
 
-        elif self.charType == 6:
-            self.minMax.extend([33, 176])  # these parameters represent the decimal range of (essentially) all ascii characters
-            self.Generate()
+            elif self.charType == 6:
+                self.minMax3.extend([self.a_lowercase_range,
+                                     self.a_uppercase_range,
+                                     (0, len(self.a_special_chars))])
+                self.Generate3()
 
-        os.system("cls")
-        input(f"Your password is {self.password}")
+            elif self.charType == 7:
+                self.minMax.extend([33, 126])  # these parameters represent the decimal range of (essentially) all ascii characters
+                self.Generate()
+
+            #if not self.verifyPasswordCriteria():
+                #continue
+
+
+            # os.system("cls")
+            choice = input(f"Your password is {self.password}\n\n Generate again? (y/N)")
+            if choice not in ('Y', 'y'):
+                isGenerating = False
 
     def Generate(self):  # Generates pw based on 1 range of ascii values
         for i in range(self.length):
@@ -160,10 +184,22 @@ class PasswordGenerator:
         for i in range(self.length):
             r = random.choice([(self.minMax3[0][0], self.minMax3[0][1]),
                                (self.minMax3[1][0], self.minMax3[1][1]),
-                               (self.minMax3[2][0], self.minMax3[2][1])])
+                               (0, len(self.minMax3[2]))])
 
             self.password += chr(random.randint(r[0], r[1]))
 
+    def verifyPasswordCriteria(self):
+        lowercaseFlag = False
+        uppercaseFlag = False
+        numberFlag    = False
+        characterFlag = False
 
-gui = GUI()
+        for char in self.password:
+            lowercaseFlag = chr(char) in range(self.a_lowercase_range)
+            uppercaseFlag = chr(char) in range(self.a_uppercase_range)
+            characterFlag = chr(char) in range(self.a_special_char_range)
+            numberFlag    = chr(char) in range(self.a_numbers_range)
+
+
+
 # pwManager = PasswordManager(1)
