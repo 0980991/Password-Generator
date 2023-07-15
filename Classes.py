@@ -1,3 +1,4 @@
+import secrets
 import random
 import os
 import time
@@ -101,8 +102,34 @@ class PasswordManager:
     def Logout():
         GUI()
 
-
+# A generator that always combines upper&lowercase as well as numbers and characters.
+# Implements makes use of python secrets instead of random
+# TODO: Add a complexity parameter which determins how many special characters & numbers are used.
 class PasswordGenerator:
+    def __init__(self, length):
+        self.length = length
+        self.password = ""
+        self.all_ranges = [
+                            [97, 122],
+                            [65, 90],
+                            [48, 57],
+                            ["!", "@","#", "$", "%", "^", "&", "*",
+                                "(", ")" , "_", "-", "\"", "\'", "\\"]
+                        ]
+        self.generate()
+
+    def generate(self):
+        for i in range(self.length):
+            i_range = secrets.randbelow(len(self.all_ranges))
+            if i_range == 3:
+                self.password += secrets.choice(self.all_ranges[i_range])
+            else:
+                self.password += chr(secrets.randbelow(self.all_ranges[i_range][1] - self.all_ranges[i_range][0] + 1) + self.all_ranges[i_range][0])
+        print(self.password)
+
+
+# Deprecated password generator which allows the user to generate a password with any combination of characters.
+class oldPasswordGenerator:
     def __init__(self, length, charType):
         # Ascii values of text/symbols
         self.a_lowercase_range    = [97, 122]
@@ -200,6 +227,3 @@ class PasswordGenerator:
             characterFlag = chr(char) in range(self.a_special_char_range)
             numberFlag    = chr(char) in range(self.a_numbers_range)
 
-
-
-# pwManager = PasswordManager(1)
