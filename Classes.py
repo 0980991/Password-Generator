@@ -3,7 +3,84 @@ import random
 import os
 import time
 import json
-import functools as ft
+import bcrypt
+from cryptography.fernet import Fernet
+
+# A generator that always combines upper&lowercase as well as numbers and characters.
+# Implements makes use of python secrets instead of random
+# TODO: Add a complexity parameter which determins how many special characters & numbers are used.
+class PasswordGenerator:
+    def __init__(self):
+        self.password = ""
+        self.all_ranges = [
+                            [97, 122],
+                            [65, 90],
+                            [48, 57],
+                            ["!", "@","#", "$", "%", "^", "&", "*",
+                             "(", ")" , "_", "-", "\"", "\'", "\\"]
+                        ]
+
+    def generate(self, length):
+        for i in range(length):
+            i_range = secrets.randbelow(len(self.all_ranges))
+            if i_range == 3:
+                self.password += secrets.choice(self.all_ranges[i_range])
+            else:
+                self.password += chr(secrets.randbelow(self.all_ranges[i_range][1] - self.all_ranges[i_range][0] + 1) + self.all_ranges[i_range][0])
+        # print(self.password)
+        return self.password
+
+
+class PasswordManager:
+    def __init__(self, file_name):
+        self.file_name = file_name
+        self.key       = self.genKey()
+
+    def setMasterPassword(self, master_password):
+        self.master_password = master_password.encode('utf-8')
+
+    def genKey(self):
+        return Fernet.generate_key()
+
+    def encrypt(self, password):
+        fernet = Fernet(self.key)
+        password_bytes = password.encode('utf-8')
+        encrypted_password = fernet.encrypt(password_bytes)
+        return encrypted_password
+
+    def decrypt(self, encrypted_password):
+        fernet = Fernet(self.key)
+        password_bytes = fernet.decrypt(encrypted_password)
+        password = password_bytes.decode('utf-8')
+        return password
+
+    def hashPassword(self, unhashed_password, salt_rounds):
+        # salt_rounds can be in-or-decreased to hash a pw faster and less secure or slower and more secure (4-20 recommended)
+        salt = bcrypt.gensalt(rounds=salt_rounds)
+        hashed_password = bcrypt.hashpw(unhashed_password.encode('utf-8'), salt)
+        print(hashed_password)
+        return hashed_password
+
+    def storePassword(self, obscured_password):
+        with open(self.file_name, 'ab') as file:
+            file.write(obscured_password + b'\n')
+
+    def readPasswords(self):
+        try:
+            with open(self.file_name, 'r') as file:
+                lines = file.readlines()
+                lines = [line.strip() for line in lines]  # Remove leading/trailing whitespace and newlines
+                return lines
+        except FileNotFoundError:
+            print(f"File not found: {self.file_name}")
+            return []
+        except Exception as e:
+            print(f"Error reading file: {e}")
+            return []
+
+
+
+
 
 
 class GUI:
@@ -26,7 +103,7 @@ class GUI:
                 self.choice = input("What would you like to do?\n" + (15 * "_") +
                                     "\n1. Show all passwords"
                                     "\n2. Search for a password\n")
-                PasswordManager(self.choice)
+                GUIPasswordManager(self.choice)
 
             if self.choice == "2":
                 self.SetPwParameters()
@@ -51,81 +128,6 @@ class GUI:
 
     def ClearTerminal(self):
         os.system("cls")
-
-
-class PasswordManager:
-    def __init__(self, choice):
-        self.userData = json.load(open("userData.json"))
-
-        if choice == 1:
-            self.GetInfo()
-
-        elif choice == 2:
-            self.Search()
-
-        elif choice == 3:
-            GUI.SetPwParameters()
-
-        elif choice == 4:
-            self.Logout()
-
-    def GetInfo(self):
-        for site in self.userData:
-            print(15 * "-" + "\n"
-                  f'Site: {site["site"]}\n'
-                  f'Password: {site["password"]} ')
-
-    def Search(self):
-        while True:
-            os.system("cls")
-            searchChoice = input("===============================\n"
-                                 "Please enter your search query?\n"
-                                 "-------------------------------\n")
-
-            flag = True
-            while flag:
-                output = ""
-                i = 0
-                while i < len(self.userData):
-                    if searchChoice == self.userData[i]["site"]:
-                        output += "\n" + str(self.userData[i])
-                    i += 1
-                if output != "":
-                    print(f"{output}")
-                    input()
-                    flag = False
-                else:
-                    print("No items found matching your query. Check for spelling errors or adjust your query type.")
-                    time.sleep(5)
-                input("Press enter to continue...........")
-
-    def Logout():
-        GUI()
-
-# A generator that always combines upper&lowercase as well as numbers and characters.
-# Implements makes use of python secrets instead of random
-# TODO: Add a complexity parameter which determins how many special characters & numbers are used.
-class PasswordGenerator:
-    def __init__(self, length):
-        self.length = length
-        self.password = ""
-        self.all_ranges = [
-                            [97, 122],
-                            [65, 90],
-                            [48, 57],
-                            ["!", "@","#", "$", "%", "^", "&", "*",
-                                "(", ")" , "_", "-", "\"", "\'", "\\"]
-                        ]
-        self.generate()
-
-    def generate(self):
-        for i in range(self.length):
-            i_range = secrets.randbelow(len(self.all_ranges))
-            if i_range == 3:
-                self.password += secrets.choice(self.all_ranges[i_range])
-            else:
-                self.password += chr(secrets.randbelow(self.all_ranges[i_range][1] - self.all_ranges[i_range][0] + 1) + self.all_ranges[i_range][0])
-        print(self.password)
 
 
 # Deprecated password generator which allows the user to generate a password with any combination of characters.
@@ -227,3 +229,52 @@ class oldPasswordGenerator:
             characterFlag = chr(char) in range(self.a_special_char_range)
             numberFlag    = chr(char) in range(self.a_numbers_range)
 
+# Deprecated password manager class
+class GUIPasswordManager:
+    def __init__(self, choice):
+        self.userData = json.load(open("userData.json"))
+
+        if choice == 1:
+            self.GetInfo()
+
+        elif choice == 2:
+            self.Search()
+
+        elif choice == 3:
+            GUI.SetPwParameters()
+
+        elif choice == 4:
+            self.Logout()
+
+    def GetInfo(self):
+        for site in self.userData:
+            print(15 * "-" + "\n"
+                  f'Site: {site["site"]}\n'
+                  f'Password: {site["password"]} ')
+
+    def Search(self):
+        while True:
+            os.system("cls")
+            searchChoice = input("===============================\n"
+                                 "Please enter your search query?\n"
+                                 "-------------------------------\n")
+
+            flag = True
+            while flag:
+                output = ""
+                i = 0
+                while i < len(self.userData):
+                    if searchChoice == self.userData[i]["site"]:
+                        output += "\n" + str(self.userData[i])
+                    i += 1
+                if output != "":
+                    print(f"{output}")
+                    input()
+                    flag = False
+                else:
+                    print("No items found matching your query. Check for spelling errors or adjust your query type.")
+                    time.sleep(5)
+                input("Press enter to continue...........")
+
+    def Logout():
+        GUI()
